@@ -1,0 +1,167 @@
+[
+  {
+    "date": "2025-10-01",
+    "model_version": "v1",
+    "metrics": {
+      "auc": 0.74,
+      "log_loss": 0.52,
+      "calibration": "Poor",
+      "total_predictions": 128450,
+      "total_clicks": 9821,
+      "actual_ctr": 0.0765,
+      "predicted_avg_ctr": 0.1120,
+      "calibration_ratio": 0.683
+    },
+    "notes": "Initial model launch. Over-predicting CTR significantly."
+  },
+  {
+    "date": "2025-10-15",
+    "model_version": "v1",
+    "metrics": {
+      "auc": 0.73,
+      "log_loss": 0.54,
+      "calibration": "Poor",
+      "total_predictions": 285610,
+      "total_clicks": 20190,
+      "actual_ctr": 0.0707,
+      "predicted_avg_ctr": 0.1085,
+      "calibration_ratio": 0.652
+    },
+    "notes": "Performance degrading. Calibration worsening."
+  },
+  {
+    "date": "2025-11-01",
+    "model_version": "v1",
+    "metrics": {
+      "auc": 0.72,
+      "log_loss": 0.55,
+      "calibration": "Poor",
+      "total_predictions": 510320,
+      "total_clicks": 34702,
+      "actual_ctr": 0.0680,
+      "predicted_avg_ctr": 0.1050,
+      "calibration_ratio": 0.648
+    },
+    "notes": "Decided to retrain. Feature drift observed in user interest categories."
+  },
+  {
+    "date": "2025-11-15",
+    "model_version": "v2",
+    "metrics": {
+      "auc": 0.79,
+      "log_loss": 0.45,
+      "calibration": "Fair",
+      "total_predictions": 142800,
+      "total_clicks": 12138,
+      "actual_ctr": 0.0850,
+      "predicted_avg_ctr": 0.0920,
+      "calibration_ratio": 0.924
+    },
+    "notes": "v2 deployed with retrained features. Significant AUC improvement."
+  },
+  {
+    "date": "2025-12-01",
+    "model_version": "v2",
+    "metrics": {
+      "auc": 0.80,
+      "log_loss": 0.44,
+      "calibration": "Fair",
+      "total_predictions": 620450,
+      "total_clicks": 54520,
+      "actual_ctr": 0.0879,
+      "predicted_avg_ctr": 0.0935,
+      "calibration_ratio": 0.940
+    },
+    "notes": "Stable performance. Slight calibration improvement over time."
+  },
+  {
+    "date": "2025-12-15",
+    "model_version": "v2",
+    "metrics": {
+      "auc": 0.79,
+      "log_loss": 0.44,
+      "calibration": "Fair",
+      "total_predictions": 980210,
+      "total_clicks": 85442,
+      "actual_ctr": 0.0872,
+      "predicted_avg_ctr": 0.0940,
+      "calibration_ratio": 0.928
+    },
+    "notes": "Holiday traffic spike. Model holding steady."
+  },
+  {
+    "date": "2026-01-01",
+    "model_version": "v2",
+    "metrics": {
+      "auc": 0.78,
+      "log_loss": 0.46,
+      "calibration": "Fair",
+      "total_predictions": 1450300,
+      "total_clicks": 120575,
+      "actual_ctr": 0.0831,
+      "predicted_avg_ctr": 0.0950,
+      "calibration_ratio": 0.875
+    },
+    "notes": "Post-holiday. CTR patterns shifting. Considering v3 retrain."
+  },
+  {
+    "date": "2026-01-15",
+    "model_version": "v2",
+    "metrics": {
+      "auc": 0.77,
+      "log_loss": 0.47,
+      "calibration": "Fair",
+      "total_predictions": 1820600,
+      "total_clicks": 147268,
+      "actual_ctr": 0.0809,
+      "predicted_avg_ctr": 0.0960,
+      "calibration_ratio": 0.843
+    },
+    "notes": "Calibration slipping. Feature drift detected. v3 training started."
+  },
+  {
+    "date": "2026-02-01",
+    "model_version": "v3",
+    "metrics": {
+      "auc": 0.82,
+      "log_loss": 0.41,
+      "calibration": "Good",
+      "total_predictions": 210400,
+      "total_clicks": 19988,
+      "actual_ctr": 0.0950,
+      "predicted_avg_ctr": 0.0970,
+      "calibration_ratio": 0.979
+    },
+    "notes": "v3 deployed. Trained on 42M samples. Best AUC and calibration yet."
+  },
+  {
+    "date": "2026-02-15",
+    "model_version": "v3",
+    "metrics": {
+      "auc": 0.83,
+      "log_loss": 0.40,
+      "calibration": "Good",
+      "total_predictions": 890750,
+      "total_clicks": 86243,
+      "actual_ctr": 0.0968,
+      "predicted_avg_ctr": 0.0980,
+      "calibration_ratio": 0.988
+    },
+    "notes": "Strong performance. Excellent calibration."
+  },
+  {
+    "date": "2026-03-01",
+    "model_version": "v3",
+    "metrics": {
+      "auc": 0.82,
+      "log_loss": 0.41,
+      "calibration": "Good",
+      "total_predictions": 1540200,
+      "total_clicks": 147858,
+      "actual_ctr": 0.0960,
+      "predicted_avg_ctr": 0.0985,
+      "calibration_ratio": 0.975
+    },
+    "notes": "Consistent performance. No drift detected."
+  }
+]

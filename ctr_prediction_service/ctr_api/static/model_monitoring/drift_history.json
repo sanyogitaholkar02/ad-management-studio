@@ -1,0 +1,244 @@
+[
+    {
+        "date": "2025-10-01",
+        "model_version": "v1",
+        "feature_drift": {
+            "detected": false,
+            "drifted_features": [],
+            "method": "PSI",
+            "threshold": 0.2,
+            "summary": "No drift. Model just deployed."
+        },
+        "prediction_drift": {
+            "detected": false,
+            "psi_score": 0.01,
+            "threshold": 0.15,
+            "baseline_mean_prediction": 0.1120,
+            "current_mean_prediction": 0.1120,
+            "summary": "Baseline established."
+        }
+    },
+    {
+        "date": "2025-10-15",
+        "model_version": "v1",
+        "feature_drift": {
+            "detected": false,
+            "drifted_features": [],
+            "method": "PSI",
+            "threshold": 0.2,
+            "summary": "No significant drift yet."
+        },
+        "prediction_drift": {
+            "detected": false,
+            "psi_score": 0.04,
+            "threshold": 0.15,
+            "baseline_mean_prediction": 0.1120,
+            "current_mean_prediction": 0.1085,
+            "summary": "Slight shift in predictions, within threshold."
+        }
+    },
+    {
+        "date": "2025-11-01",
+        "model_version": "v1",
+        "feature_drift": {
+            "detected": true,
+            "drifted_features": [
+                {
+                    "feature": "user_interest_count",
+                    "psi_score": 0.28,
+                    "direction": "increase"
+                },
+                {
+                    "feature": "avg_price_preference",
+                    "psi_score": 0.22,
+                    "direction": "decrease"
+                }
+            ],
+            "method": "PSI",
+            "threshold": 0.2,
+            "summary": "Drift detected in user interest patterns and price sensitivity. Holiday season likely cause."
+        },
+        "prediction_drift": {
+            "detected": true,
+            "psi_score": 0.18,
+            "threshold": 0.15,
+            "baseline_mean_prediction": 0.1120,
+            "current_mean_prediction": 0.1050,
+            "summary": "Prediction distribution shifted. Model underperforming on new user segments."
+        }
+    },
+    {
+        "date": "2025-11-15",
+        "model_version": "v2",
+        "feature_drift": {
+            "detected": false,
+            "drifted_features": [],
+            "method": "PSI",
+            "threshold": 0.2,
+            "summary": "New baseline after v2 retrain. No drift."
+        },
+        "prediction_drift": {
+            "detected": false,
+            "psi_score": 0.02,
+            "threshold": 0.15,
+            "baseline_mean_prediction": 0.0920,
+            "current_mean_prediction": 0.0920,
+            "summary": "New baseline established with v2."
+        }
+    },
+    {
+        "date": "2025-12-01",
+        "model_version": "v2",
+        "feature_drift": {
+            "detected": false,
+            "drifted_features": [],
+            "method": "PSI",
+            "threshold": 0.2,
+            "summary": "Stable feature distributions."
+        },
+        "prediction_drift": {
+            "detected": false,
+            "psi_score": 0.05,
+            "threshold": 0.15,
+            "baseline_mean_prediction": 0.0920,
+            "current_mean_prediction": 0.0935,
+            "summary": "Minimal shift. Within acceptable range."
+        }
+    },
+    {
+        "date": "2025-12-15",
+        "model_version": "v2",
+        "feature_drift": {
+            "detected": false,
+            "drifted_features": [],
+            "method": "PSI",
+            "threshold": 0.2,
+            "summary": "Holiday traffic but feature distributions remain stable."
+        },
+        "prediction_drift": {
+            "detected": false,
+            "psi_score": 0.08,
+            "threshold": 0.15,
+            "baseline_mean_prediction": 0.0920,
+            "current_mean_prediction": 0.0940,
+            "summary": "Slight upward shift due to holiday engagement. Still within threshold."
+        }
+    },
+    {
+        "date": "2026-01-01",
+        "model_version": "v2",
+        "feature_drift": {
+            "detected": false,
+            "drifted_features": [
+                {
+                    "feature": "search_history_length",
+                    "psi_score": 0.15,
+                    "direction": "decrease"
+                }
+            ],
+            "method": "PSI",
+            "threshold": 0.2,
+            "summary": "One feature approaching drift threshold. Monitoring closely."
+        },
+        "prediction_drift": {
+            "detected": false,
+            "psi_score": 0.11,
+            "threshold": 0.15,
+            "baseline_mean_prediction": 0.0920,
+            "current_mean_prediction": 0.0950,
+            "summary": "Predictions trending higher. Approaching threshold."
+        }
+    },
+    {
+        "date": "2026-01-15",
+        "model_version": "v2",
+        "feature_drift": {
+            "detected": true,
+            "drifted_features": [
+                {
+                    "feature": "search_history_length",
+                    "psi_score": 0.24,
+                    "direction": "decrease"
+                },
+                {
+                    "feature": "influencer_count",
+                    "psi_score": 0.21,
+                    "direction": "increase"
+                },
+                {
+                    "feature": "current_interest_count",
+                    "psi_score": 0.19,
+                    "direction": "increase"
+                }
+            ],
+            "method": "PSI",
+            "threshold": 0.2,
+            "summary": "Feature drift detected. User behavior changing — shorter searches, more influencer engagement. Triggered v3 retrain."
+        },
+        "prediction_drift": {
+            "detected": true,
+            "psi_score": 0.17,
+            "threshold": 0.15,
+            "baseline_mean_prediction": 0.0920,
+            "current_mean_prediction": 0.0960,
+            "summary": "Prediction drift confirmed. Distribution shifted significantly from v2 baseline."
+        }
+    },
+    {
+        "date": "2026-02-01",
+        "model_version": "v3",
+        "feature_drift": {
+            "detected": false,
+            "drifted_features": [],
+            "method": "PSI",
+            "threshold": 0.2,
+            "summary": "New baseline with v3. Retrained on 42M samples capturing recent behavior patterns."
+        },
+        "prediction_drift": {
+            "detected": false,
+            "psi_score": 0.01,
+            "threshold": 0.15,
+            "baseline_mean_prediction": 0.0970,
+            "current_mean_prediction": 0.0970,
+            "summary": "Fresh baseline. No drift."
+        }
+    },
+    {
+        "date": "2026-02-15",
+        "model_version": "v3",
+        "feature_drift": {
+            "detected": false,
+            "drifted_features": [],
+            "method": "PSI",
+            "threshold": 0.2,
+            "summary": "All features stable."
+        },
+        "prediction_drift": {
+            "detected": false,
+            "psi_score": 0.03,
+            "threshold": 0.15,
+            "baseline_mean_prediction": 0.0970,
+            "current_mean_prediction": 0.0980,
+            "summary": "Healthy prediction distribution."
+        }
+    },
+    {
+        "date": "2026-03-01",
+        "model_version": "v3",
+        "feature_drift": {
+            "detected": false,
+            "drifted_features": [],
+            "method": "PSI",
+            "threshold": 0.2,
+            "summary": "No drift. Model well-calibrated for current traffic patterns."
+        },
+        "prediction_drift": {
+            "detected": false,
+            "psi_score": 0.04,
+            "threshold": 0.15,
+            "baseline_mean_prediction": 0.0970,
+            "current_mean_prediction": 0.0985,
+            "summary": "Stable. No concerns."
+        }
+    }
+]

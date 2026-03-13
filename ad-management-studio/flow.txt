@@ -1,0 +1,80 @@
+1️⃣ Home Screen
+
+User starts the ad request.
+
+UI
+---------------------------------
+ Ad Platform Demo
+---------------------------------
+
+[ Request Ad ]
+
+System Flow
+React → Ad-Service → Kafka → CTR → AB Test
+
+
+2️⃣ Ad Feed Screen: AdFeedPage.jsx
+
+This screen calls Ad-Service and shows ads.
+
+UI
+---------------------------------
+User Feed
+---------------------------------
+
+[Ad Card]
+
+Title
+Image
+CTR Score
+Experiment Variant
+
+[Click Ad]
+
+---------------------------------
+3️⃣ Ad Card Component:AdCard.jsx
+
+Handles impression automatically.
+
+UI
+------------------------
+Nike Shoes
+
+[Image]
+
+CTR Score: 0.21
+Variant: B
+
+[Click Ad]
+------------------------
+
+4️⃣ Event Log Screen: EventLogPage.jsx
+
+Shows impressions and clicks (for debugging / demo).
+
+UI
+---------------------------------
+Event Logs
+---------------------------------
+
+Event Type | Ad | Timestamp
+
+Impression | ad2 | 12:01
+Click      | ad2 | 12:05
+
+----------------------------------
+5️⃣ Experiment Screen: ExperimentPage.jsx
+
+Displays the A/B testing info.
+
+UI
+---------------------------------
+Experiment Dashboard
+---------------------------------
+
+Experiment: CTR Model Test
+
+Variant A → CTR Model v1
+Variant B → CTR Model v2
+
+User Assigned: Variant B
