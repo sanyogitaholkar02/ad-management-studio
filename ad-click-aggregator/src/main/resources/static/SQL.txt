@@ -1,0 +1,94 @@
+CREATE TABLE IF NOT EXISTS `ads-agg` (
+    id          UInt64,
+    window_start DateTime64(3),
+    adId        String,
+    campaignId  String,
+    clicks      UInt64,
+    revenue     Float64
+) ENGINE = MergeTree()
+ORDER BY (window_start, adId, campaignId);
+
+
+CREATE TABLE IF NOT EXISTS `user_click_rate` (
+    userId       String,
+    window_start DateTime64(3),
+    window_end   DateTime64(3),
+    clicks       UInt64,
+    total_cost   Float64
+) ENGINE = MergeTree()
+ORDER BY (window_start, userId);
+
+
+docker exec -it <clickhouse-container> clickhouse-client --password click@house879
+
+
+SELECT * FROM `ads-agg`;
+
+-- User click rate: 24h rollup (this is what the API does)
+SELECT
+    userId,
+    SUM(clicks) AS total_clicks,
+    SUM(total_cost) AS total_cost
+FROM user_click_rate
+WHERE window_start >= now() - INTERVAL 24 HOUR
+GROUP BY userId
+ORDER BY total_clicks DESC;
+
+SELECT * FROM `user_click_rate`;
+
+Olap Click House
+http://localhost:8123/
+
+Flink UI
+http://localhost:8087/
+
+
+1. Message produced to Kafka topic
+2. Flink reads it → [Flink] Received: {...}
+3. Flink aggregates in 1-min windows → [Flink] Window aggregate: ...
+4. Flink sink saves to ClickHouse → [Flink Sink] Saved: ...
+5. Query ClickHouse → SELECT * FROM `ads-agg`
+
+
+Step 1: Send clicks (Postman)
+POST http://localhost:8086/kafka-produce
+Content-Type: application/json
+Send these one by one:
+
+json
+{"adId":"ad-101","campaignId":"camp-1","userId":"user-42","cost":2.50,"idempotencyKey":"k1"}
+json
+{"adId":"ad-101","campaignId":"camp-1","userId":"user-42","cost":3.00,"idempotencyKey":"k2"}
+json
+{"adId":"ad-202","campaignId":"camp-2","userId":"user-99","cost":1.80,"idempotencyKey":"k3"}
+
+
+GET http://localhost:8086/api/analytics/clickhouse-test
+You should now see:
+
+json
+{
+    "url": "jdbc:clickhouse://localhost:8123/default",
+    "user": "default",
+    "connection": "OK",
+    "user_click_rate_rows": 0,
+    "ads_agg_rows": 0
+}
+
+5. User click rate — specific user (last 24h)
+GET http://localhost:8086/api/analytics/user-click-rate-24h/user-42
+6. Health check
+GET http://localhost:8086/api/data
+
+
+Quick Summary
+#	Method	Endpoint	Description
+1	GET	/submit-job	Submit a test Flink job
+2	GET	/api/data	Health check
+3	GET	/ad-aggregates	Get latest consumed Kafka messages
+4	POST	/kafka-produce	Produce an ad-click event to Kafka
+5	GET	/kafka-test	Send a hardcoded test message to Kafka
+6	GET	/api/analytics/clickhouse-test	Test ClickHouse connectivity
+7	GET	/api/analytics/user-click-rate-24h	All users' 24h click rates
+8	GET	/api/analytics/user-click-rate-24h/{userId}	Specific user's 24h click rate
+Key Details

@@ -1,0 +1,41 @@
+version: "3.8"
+
+networks:
+  analytics-net:
+    driver: bridge
+
+services:
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: clickhouse
+    networks:
+      - analytics-net
+    ports:
+      - "8123:8123"   # HTTP interface
+      - "9000:9000"   # Native client
+    restart: unless-stopped
+
+  flink-jobmanager:
+    image: flink:latest
+    container_name: flink-jobmanager
+    networks:
+      - analytics-net
+    ports:
+      - "8087:8081"   # Host 8087 → container 8081 (Web UI)
+    environment:
+      FLINK_PROPERTIES: jobmanager.rpc.address=flink-jobmanager
+    command: jobmanager
+    restart: unless-stopped
+
+  flink-taskmanager:
+    image: flink:latest
+    container_name: flink-taskmanager
+    networks:
+      - analytics-net
+    depends_on:
+      - flink-jobmanager
+    environment:
+      FLINK_PROPERTIES: jobmanager.rpc.address=flink-jobmanager
+    command: taskmanager
+    restart: unless-stopped
