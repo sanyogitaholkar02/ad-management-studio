@@ -70,3 +70,19 @@ yarn-error.log*
 # Database
 *.db
 *.sqlite3
+
+# ── ad-management-studio (frontend) ──
+ad-management-studio/flow.txt
+
+# ── ctr_prediction_service ──
+**/performance_history.json
+**/drift_history.json
+**/model_registry.json
+
+# ── ad-click-aggregator ──
+ad-click-aggregator/help.md
+
+# ── ad_processor ──
+ad_processor/src/main/resources/static/sample-ads-data.json
+ad_processor/src/main/resources/static/sample-click-events.json
+ad_processor/src/main/resources/static/docker-commands
