@@ -50,12 +50,26 @@ export async function uploadAdImage(file) {
 }
 
 /** Record a click (Redis dedup → Kafka → 302 redirect) */
-export async function recordAdClick(adId, userId) {
+export async function recordAdClick(clickEvent) {
   const res = await fetch(`${BASE}/events/adclick`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ adId, userId }),
+    body: JSON.stringify(clickEvent),
     redirect: "manual",  // handle 302 ourselves
   });
-  return { status: res.status, redirected: res.redirected };
+  if (res.status === 302) {
+    return { status: 302, message: "Click processed — redirect issued", redirectUrl: res.headers.get("Location") };
+  }
+  if (!res.ok) {
+    const errorBody = await res.text();
+    throw new Error(errorBody || `Ad click failed: ${res.status}`);
+  }
+  return { status: res.status, message: "Click processed successfully" };
+}
+
+/** Get users who clicked on a specific ad */
+export async function fetchAdSubscribers(adId, campaignId) {
+  const res = await fetch(`${BASE}/ads/adsSubscribers?adId=${encodeURIComponent(adId)}&campaignId=${encodeURIComponent(campaignId)}`);
+  if (!res.ok) throw new Error(`Failed to fetch subscribers: ${res.status}`);
+  return res.json();
 }

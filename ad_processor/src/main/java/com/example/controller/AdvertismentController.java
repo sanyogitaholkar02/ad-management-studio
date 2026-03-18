@@ -1,6 +1,9 @@
 package com.example.controller;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,8 +17,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.entity.AdSubscriber;
 import com.example.entity.Ads;
 import com.example.pojo.Advertisments;
+import com.example.repo.AdSubscriberRepo;
 import com.example.service.AdvertismentPopulateService;
 import com.example.service.S3Service;
 
@@ -32,6 +37,9 @@ public class AdvertismentController {
 
     @Autowired
     private S3Service serv;
+
+    @Autowired
+    private AdSubscriberRepo adSubscriberRepo;
 
     @PostMapping("/add-list")
     public ResponseEntity<List<Ads>> addAdvertisment(
@@ -61,11 +69,6 @@ public class AdvertismentController {
         String key = "ads/" + adId + "-" + file.getOriginalFilename();
         String url = serv.uploadFile(file, key);
         return ResponseEntity.ok(url);
-    }
-
-    @GetMapping("/start")
-    public String checkApplicationStart() {
-        return "Yes!! Application ad-click-processor is running";
     }
 
     @PostMapping("/add")
@@ -98,5 +101,43 @@ public class AdvertismentController {
 
         log.info("Ad created with adId={}, imageUrl={}", adId, imageUrl);
         return ResponseEntity.ok(ad);
+    }
+
+    /**
+     * GET /ads/users?adId=AD-1004&campaignId=camp004
+     * Returns the list of user IDs who clicked on the given ad.
+     */
+    @GetMapping("/adsSubscribers")
+    public ResponseEntity<?> getUsersByAdAndCampaign(
+            @RequestParam String adId,
+            @RequestParam String campaignId) {
+
+        log.info("GET /ads/adsSubscribers — adId={}, campaignId={}", adId, campaignId);
+
+        // Query from ad_subscriber table
+        List<AdSubscriber> subscribers = adSubscriberRepo.findByAdId(adId);
+
+        List<Map<String, Object>> userDetails = subscribers.stream()
+                .map(s -> {
+                    Map<String, Object> user = new LinkedHashMap<>();
+                    user.put("userId", s.getUserId());
+                    user.put("clickCount", s.getClickCount());
+                    return user;
+                })
+                .collect(Collectors.toList());
+
+        List<String> userIds = subscribers.stream()
+                .map(AdSubscriber::getUserId)
+                .distinct()
+                .collect(Collectors.toList());
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("adId", adId);
+        response.put("campaignId", campaignId);
+        response.put("totalUsers", userIds.size());
+        response.put("userIds", userIds);
+        response.put("userDetails", userDetails);
+
+        return ResponseEntity.ok(response);
     }
 }

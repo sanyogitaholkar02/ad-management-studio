@@ -2,32 +2,38 @@ import React, { useEffect } from "react";
 import { logImpression, logClick } from "../services/eventService";
 import { recordAdClick } from "../services/adService";
 
-export default function AdCard({ ad }) {
+export default function AdCard({ ad, onClickAd }) {
 
   useEffect(() => {
     logImpression(ad);
   }, [ad]);
 
+  const title = ad.company || ad.title || ad.name || ad.adTitle || ad.companyName || ad.company_name || "Untitled Ad";
+  const imageUrl = ad.imageURL || ad.imageUrl || ad.image_url || ad.s3ImageUrl;
+  const ctr = ad.ctr != null ? ad.ctr : null;
+  const adId = ad.adID || ad.adId || ad.id || "—";
+  const campaignId = ad.campaignId || ad.campaign_id || "—";
+  const redirectUrl = ad.redirectURL || ad.clickUrl || ad.click_url || ad.targetUrl || "";
+
   const handleClick = async () => {
-    // Use the real click pipeline: POST /click/adclick → Redis dedup → Kafka → 302
     try {
-      await recordAdClick(ad.adId || ad.id, `user-${Date.now()}`);
+      await recordAdClick({
+        adId,
+        campaignId,
+        userId: `user-${Date.now()}`,
+        idempotencyKey: `key-${Date.now()}`,
+        timestamp: Date.now(),
+        redirectUrl,
+      });
     } catch {
-      // fallback
       logClick(ad);
     }
 
-    if (ad.clickUrl || ad.click_url || ad.targetUrl) {
-      window.open(ad.clickUrl || ad.click_url || ad.targetUrl);
+    // Notify parent to show subscribers
+    if (onClickAd) {
+      onClickAd(ad);
     }
   };
-
-  const title = ad.title || ad.name || ad.adTitle || ad.companyName || ad.company_name || ad.company || "Untitled Ad";
-  const imageUrl = ad.imageUrl || ad.image_url || ad.s3ImageUrl;
-  const ctr = ad.ctr != null ? ad.ctr : null;
-  const variant = ad.variant || ad.campaignId || null;
-  const adId = ad.adId || ad.id || "—";
-  const campaignId = ad.campaignId || ad.campaign_id || "—";
 
   return (
     <div className="ad-card">
@@ -79,7 +85,7 @@ export default function AdCard({ ad }) {
 
         <div className="ad-card-actions">
           <button className="btn btn-primary btn-sm" onClick={handleClick}>
-            �️ Click Ad
+            🖱️ Click Ad
           </button>
           <button className="btn btn-secondary btn-sm" onClick={() => logClick(ad)}>
             📊 Track

@@ -4,6 +4,7 @@ import {
     produceAdClickEvent,
     sendKafkaTestMessage,
 } from "../services/analyticsService";
+import { recordAdClick } from "../services/adService";
 
 export default function EventLogPage() {
     const [activeTab, setActiveTab] = useState("producer");
@@ -19,9 +20,11 @@ export default function EventLogPage() {
         idempotencyKey: `key-${Date.now()}`,
         timestamp: new Date().toISOString(),
         cost: "1.50",
+        redirectUrl: "https://example.com/ad-001",
     });
     const [producing, setProducing] = useState(false);
     const [produceResult, setProduceResult] = useState(null);
+    const [adClickResult, setAdClickResult] = useState(null);
     const [testResult, setTestResult] = useState(null);
 
     // Toast
@@ -52,14 +55,35 @@ export default function EventLogPage() {
     const handleProduce = async () => {
         setProducing(true);
         setProduceResult(null);
+        setAdClickResult(null);
         try {
             const payload = {
                 ...form,
                 cost: parseFloat(form.cost) || 0,
             };
+
+            // 1. POST /events/adclick — Redis dedup → Kafka → redirect
+            try {
+                const clickResult = await recordAdClick({
+                    adId: form.adId,
+                    campaignId: form.campaignId,
+                    userId: form.userId,
+                    idempotencyKey: form.idempotencyKey,
+                    timestamp: Date.now(),
+                    redirectUrl: form.redirectUrl,
+                });
+                setAdClickResult(JSON.stringify(clickResult, null, 2));
+                addToast("success", "POST /events/adclick — Click event processed!");
+            } catch (clickErr) {
+                setAdClickResult("Error: " + clickErr.message);
+                addToast("error", "/events/adclick failed: " + clickErr.message);
+            }
+
+            // 2. POST /kafka-produce — direct Kafka produce via analytics service
             const result = await produceAdClickEvent(payload);
             setProduceResult(result);
-            addToast("success", "Event produced to Kafka successfully!");
+            addToast("success", "POST /kafka-produce — Event produced to Kafka!");
+
             // Generate new idempotency key for next event
             setForm(prev => ({
                 ...prev,
@@ -167,6 +191,11 @@ export default function EventLogPage() {
                             <input className="form-input mono" name="timestamp" value={form.timestamp} onChange={handleFormChange} />
                         </div>
 
+                        <div className="form-group">
+                            <label className="form-label">Redirect URL</label>
+                            <input className="form-input mono" name="redirectUrl" value={form.redirectUrl} onChange={handleFormChange} placeholder="https://example.com" />
+                        </div>
+
                         <div className="form-actions">
                             <button className="btn btn-primary" onClick={handleProduce} disabled={producing}>
                                 {producing ? "Sending..." : "🚀 Produce Event"}
@@ -180,9 +209,16 @@ export default function EventLogPage() {
                     <div className="kafka-results-panel">
                         <h3>📋 Response</h3>
 
+                        {adClickResult && (
+                            <div style={{ marginBottom: '1.5rem' }}>
+                                <div className="form-label" style={{ marginBottom: '0.5rem' }}>POST /events/adclick Result</div>
+                                <div className="json-block">{adClickResult}</div>
+                            </div>
+                        )}
+
                         {produceResult && (
                             <div style={{ marginBottom: '1.5rem' }}>
-                                <div className="form-label" style={{ marginBottom: '0.5rem' }}>Produce Result</div>
+                                <div className="form-label" style={{ marginBottom: '0.5rem' }}>POST /kafka-produce Result</div>
                                 <div className="json-block">{produceResult}</div>
                             </div>
                         )}
@@ -207,11 +243,11 @@ export default function EventLogPage() {
                         <div>
                             <div className="form-label" style={{ marginBottom: '0.5rem' }}>Endpoint Info</div>
                             <div className="json-block">
-                                {`POST /kafka-produce
-Host: localhost:8086
-Content-Type: application/json
+                                {`1. POST /events/adclick (Ad Processor :8085)
+   → Redis dedup → Kafka publish → 302 redirect
 
-Pipeline: Kafka → Flink → ClickHouse`}
+2. POST /kafka-produce (Analytics :8086)
+   → Direct Kafka produce → Flink → ClickHouse`}
                             </div>
                         </div>
                     </div>

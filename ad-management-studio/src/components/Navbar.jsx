@@ -50,10 +50,10 @@ export default function Navbar() {
                     </li>
                 </ul>
 
-                <div className="navbar-status">
+                {/* <div className="navbar-status">
                     <span className="status-dot"></span>
                     System Online
-                </div>
+                </div> */}
 
             </div>
         </nav>

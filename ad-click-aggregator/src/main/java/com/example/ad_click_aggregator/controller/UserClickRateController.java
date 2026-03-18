@@ -161,10 +161,6 @@ public class UserClickRateController {
         return Map.of("userId", userId, "message", "No click data found in the last 24 hours");
     }
 
-    // ========================
-    // HARDCODED DEMO ENDPOINTS
-    // ========================
-
     /**
      * GET /analytics/hardcode/user-click-rate-24h
      * Returns all users' click rates (hardcoded demo data).

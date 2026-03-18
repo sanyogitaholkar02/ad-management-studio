@@ -10,11 +10,13 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import com.example.entity.AdSubscriber;
 import com.example.entity.Ads;
 import com.example.exception.AdNotFoundException;
 import com.example.exception.KafkaPublishException;
 import com.example.pojo.AdClick;
 import com.example.pojo.ClickEventRequest;
+import com.example.repo.AdSubscriberRepo;
 import com.example.repo.AdvertismentRepo;
 import com.example.repo.ClickEventRepo;
 
@@ -25,17 +27,20 @@ public class ClickEventService {
 
     private final ClickEventRepo repository;
     private final AdvertismentRepo repo;
+    private final AdSubscriberRepo adSubscriberRepo;
     private final RedisTemplate<String, String> redisTemplate;
     private final KafkaTemplate<String, AdClick> kafkaTemplate;
 
     public static final String TOPIC = "ad-click-topic-1";
 
     public ClickEventService(RedisTemplate<String, String> redisTemplate,
-            KafkaTemplate<String, AdClick> kafkaTemplate, ClickEventRepo repository, AdvertismentRepo repo) {
+            KafkaTemplate<String, AdClick> kafkaTemplate, ClickEventRepo repository,
+            AdvertismentRepo repo, AdSubscriberRepo adSubscriberRepo) {
         this.repository = repository;
         this.redisTemplate = redisTemplate;
         this.kafkaTemplate = kafkaTemplate;
         this.repo = repo;
+        this.adSubscriberRepo = adSubscriberRepo;
     }
 
     public boolean isDuplicate(String idempotencyKey) {
@@ -90,17 +95,36 @@ public class ClickEventService {
         String redirectUrl = ads.getRedirectURL();
         log.info("Processing click for adId={}, redirecting to: {}", request.getAdId(), redirectUrl);
 
-        // 3. Create POJO for Kafka
+        // 3. Save or update the ad_subscriber record
+        String userId = request.getUserId();
+        if (userId != null && !userId.isBlank()) {
+            AdSubscriber existing = adSubscriberRepo.findByAdIdAndUserId(request.getAdId(), userId);
+            if (existing != null) {
+                // Increment click count for returning user
+                existing.setClickCount(existing.getClickCount() + 1);
+                existing.setTimestamp(new Timestamp(System.currentTimeMillis()));
+                adSubscriberRepo.save(existing);
+                log.info("Updated ad_subscriber: adId={}, userId={}, clickCount={}",
+                        request.getAdId(), userId, existing.getClickCount());
+            } else {
+                // New subscriber
+                AdSubscriber subscriber = new AdSubscriber(request.getAdId(), userId,
+                        new Timestamp(System.currentTimeMillis()), ads);
+                adSubscriberRepo.save(subscriber);
+                log.info("Saved new ad_subscriber: adId={}, userId={}", request.getAdId(), userId);
+            }
+        }
+
+        // 4. Create POJO for Kafka
         AdClick adClick = new AdClick();
         adClick.setAdId(request.getAdId());
         adClick.setIdempotencyKey(request.getIdempotencyKey());
         adClick.setTimestamp(new Timestamp(System.currentTimeMillis()));
 
-        // 4. Produce to Kafka (throws KafkaPublishException on failure)
+        // 5. Produce to Kafka (throws KafkaPublishException on failure)
         produceToKafka(adClick);
 
-        // 5. Mark processed in Redis (throws RedisConnectionFailureException on
-        // failure)
+        // 6. Mark processed in Redis
         markProcessed(request.getIdempotencyKey());
 
         return redirectUrl;

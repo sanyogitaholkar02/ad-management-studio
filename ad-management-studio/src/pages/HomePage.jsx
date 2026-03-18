@@ -99,35 +99,35 @@ export default function HomePage() {
         <div className="health-card">
           <div className={`health-icon ${services.adService.status}`}>🖥️</div>
           <div className="health-info">
-            <h4>Ad Service <span className={`status-text ${services.adService.status}`}>● {services.adService.status}</span></h4>
-            <p>localhost:8080 — {services.adService.message}</p>
+            <h4>Advertisements <span className={`status-text ${services.adService.status}`}></span></h4>
+
           </div>
         </div>
         <div className="health-card">
           <div className={`health-icon ${services.analyticsService.status}`}>📈</div>
           <div className="health-info">
-            <h4>Analytics API <span className={`status-text ${services.analyticsService.status}`}>● {services.analyticsService.status}</span></h4>
-            <p>localhost:8086 — {services.analyticsService.message}</p>
+            <h4>Analytics <span className={`status-text ${services.analyticsService.status}`}></span></h4>
+            {/* <p>localhost:8086 — {services.analyticsService.message}</p> */}
           </div>
         </div>
         <div className="health-card">
           <div className={`health-icon ${services.clickHouse.status}`}>🗄️</div>
           <div className="health-info">
-            <h4>ClickHouse <span className={`status-text ${services.clickHouse.status}`}>● {services.clickHouse.status}</span></h4>
-            <p>{services.clickHouse.message}</p>
+            <h4>Tracking <span className={`status-text ${services.clickHouse.status}`}></span></h4>
+            {/* <p>{services.clickHouse.message}</p> */}
           </div>
         </div>
         <div className="health-card" style={{ cursor: 'pointer' }} onClick={checkServices}>
           <div className="health-icon checking">🔄</div>
           <div className="health-info">
-            <h4>Refresh All</h4>
-            <p>Click to re-check all services</p>
+            <h4>Model Monitoring</h4>
+
           </div>
         </div>
       </div>
 
       {/* Live Stats from ClickHouse */}
-      <h2 className="section-title">📊 Analytics Summary (24h)</h2>
+      <h2 className="section-title">📊 Analytics Summary</h2>
       <div className="hero-stats" style={{ maxWidth: '100%', marginTop: '0' }}>
         <div className="stat-card animate-in animate-in-delay-1">
           <div className="stat-value blue">{stats.totalClicks.toLocaleString()}</div>
